@@ -1,0 +1,38 @@
+<div class="container" align="center">
+    {{#if message}}
+        <div class="alert alert-warning alert-dismissible fade in" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Ohps!</strong> {{message}}
+        </div>
+    {{/if}}
+
+    <div class="card">
+        <div class="card-header">
+            로그인
+        </div>
+        <div class="card-body">
+            <form action="/user/login" method="post">
+                <div class="mb-3 row">
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="inputId" name="userId" placeholder="아이디">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="inputPassword" name="userPassword" placeholder="패스워드">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <button type="submit" class="btn btn-primary mb-3">로그인</button>
+                </div>
+            </form>
+            <div>
+                <a href="/user/sign-up">회원가입</a>
+            </div>
+        </div>
+    </div>
+
+
+</div>
