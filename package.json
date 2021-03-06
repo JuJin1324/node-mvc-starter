@@ -1,0 +1,30 @@
+{
+  "name": "node-mvc-starter",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Yoo Ju-Jin",
+    "url": "https://github.com/JuJin1324/node-mvc-starter.git"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JuJin1324/node-mvc-starter.git"
+  },
+  "keywords": [
+    "MVC",
+    "Express Application",
+    "Expressjs"
+  ],
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "hbs": "~4.0.4",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1"
+  }
+}
