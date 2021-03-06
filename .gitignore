@@ -65,3 +65,4 @@ typings/
 /.idea/vcs.xml
 /.idea/.gitignore
 /package-lock.json
+/.idea/

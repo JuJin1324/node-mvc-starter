@@ -4,10 +4,16 @@ const hbs = require('express3-handlebars');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const session = require("express-session");
+const MariaDBStore = require('express-session-mariadb-store');
 const logger = require('./lib/logger');
 
 const indexRouter = require('./server/routes/index');
 const userRouter = require('./server/routes/user');
+const dbConfig = require("./server/config/dbconfig");
+const credentials = require("./credentials");
+const passport = require('passport');
+const flash = require('connect-flash');
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
@@ -22,11 +28,28 @@ app.engine('hbs', hbs({
 );
 app.set('view engine', 'hbs');
 
+require('./server/config/passport')(passport);
+app.use(passport.initialize({}));
+app.use(passport.session({}));
+app.use(flash());
+
+let env = app.get('env') || 'development';
+dbConfig.initDbPool(env);
+app.use(session({
+    secret: credentials.cookieSecret,
+    proxy: true,
+    resave: true,
+    saveUninitialized: true,
+    store: new MariaDBStore(dbConfig.getDbOptions(env)),
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(compression(null));
+
+
 
 let server;
 app.use((req, res, next) => {
