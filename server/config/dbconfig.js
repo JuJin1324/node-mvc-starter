@@ -39,6 +39,26 @@ const getDbOptions = (env) => {
     return dbOptions;
 };
 
+const getConnection = () => {
+    return pool.getConnection();
+};
+
+const query = (query, callback) => {
+    getConnection().then(conn => {
+        try {
+            conn.query(query).then(rows => {
+                callback(null, rows);
+            });
+        } catch (err) {
+            callback(err, null);
+        } finally {
+            conn.end();
+        }
+    }).catch(err => {
+        callback(err, null);
+    });
+}
+
 module.exports = {
     getDbOptions: getDbOptions,
     initDbPool: (env) => {
@@ -53,7 +73,6 @@ module.exports = {
             connectionLimit: 5
         });
     },
-    getConnection: () => {
-        return pool.getConnection();
-    },
+    getConnection: getConnection,
+    query: query,
 };

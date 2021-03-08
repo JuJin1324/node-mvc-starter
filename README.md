@@ -79,7 +79,10 @@
 > 설치: `npm i mariadb`  
 
 ### bcrypt-nodejs
-> 패스워드 암호화용 모듈  
+> 패스워드 암호화용 모듈
+> 현업에서 많이 사용하는 패스워드 암호화 알고리즘, 기본적으로 salt 를 추가하여 해싱하기 때문에 
+> 오래 전부터 많이 사용하는 SHA256이나 SHA512 보다 보안성이 높다는 평가.
+> salt 는 보통 10번 돌린다.  
 > 설치: `npm i bcrypt-nodejs`
 
 ### passport / passport-local

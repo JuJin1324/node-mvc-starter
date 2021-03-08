@@ -17,15 +17,15 @@ module.exports = passport => {
 
     /* passport-local Strategy 사용 */
     passport.use('local-login', new LocalStrategy({
-        usernameField: 'id',
-        passwordField: 'password',
+        usernameField: 'userId',
+        passwordField: 'userPassword',
         passReqToCallback: true,
-    }, (req, id, password, done) => {
+    }, (req, userId, userPassword, done) => {
         process.nextTick(() => {
-            User.findById(id, (err, user) => {
+            User.findById(userId, (err, user) => {
                 if (err) return done(err);
                 if (!user) return done(null, false, req.flash('loginMessage', 'No user found.'));
-                if (!user.validPassword(password))
+                if (!user.validPassword(userPassword))
                     return done(null, false, req.flash('loginMessage', 'Wohh! Wrong password.'));
                 else
                     return done(null, user);
@@ -34,23 +34,23 @@ module.exports = passport => {
     }));
 
     passport.use('local-signup', new LocalStrategy({
-        usernameField: 'id',
-        passwordField: 'password',
-        passReqCallback: true,
-    }, (req, id, password, done) => {
+        usernameField: 'userId',
+        passwordField: 'userPassword',
+        passReqToCallback: true,
+    }, (req, userId, userPassword, done) => {
         process.nextTick(() => {
             if (!req.user) {
-                User.findById(id, (err, user) => {
+                User.findById(userId, (err, user) => {
                     if (err) return done(err, null);
                     if (user) {
                         return done(null, false, req.flash('signupMessage', 'Wohh! the ID is already taken.'));
                     } else {
                         let newUser = new User.User(
-                            req.body.name,
-                            bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(8), null),
-                            req.body.name,
-                            req.body.phone,
-                            req.body.email,
+                            userId,
+                            bcrypt.hashSync(userPassword, bcrypt.genSaltSync(8), null),
+                            req.body.userName,
+                            req.body.userPhone,
+                            req.body.userEmail,
                         );
                         User.save(newUser, (err) => {
                             if (err) throw err;

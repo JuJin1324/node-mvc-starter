@@ -14,6 +14,7 @@ const dbConfig = require("./server/config/dbconfig");
 const credentials = require("./credentials");
 const passport = require('passport');
 const flash = require('connect-flash');
+const comments = require('./server/controllers/comments');
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
@@ -48,8 +49,6 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(compression(null));
-
-
 
 let server;
 app.use((req, res, next) => {
@@ -86,6 +85,9 @@ app.use((req, res, next) => {
 
 app.use('/', indexRouter);
 app.use('/user', userRouter);
+
+app.get('/comments', comments.hasAuthorization, comments.list);
+app.post('/comments', comments.hasAuthorization, comments.create);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

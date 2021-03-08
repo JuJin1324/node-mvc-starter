@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 
 /* GET login. */
 router.get('/login', (req, res) => {
@@ -7,21 +8,31 @@ router.get('/login', (req, res) => {
     res.render('pages/login', {title: '로그인 페이지'});
 });
 
-router.post('/login', (req, res) => {
-    res.send('respond with a resource');
-});
+router.post('/login', passport.authenticate('local-login', {
+    successRedirect: '/user/profile',
+    failureRedirect: '/user/login',
+    failureFlash: true
+}));
 
 /* GET sign-in*/
-router.get('/sign-up', (req, res) => {
+router.get('/signup', (req, res) => {
     // res.render('pages/signin', {title: '회원 가입 페이지', message: req.flash('signupMessage')});
     res.render('pages/signup', {title: '회원 가입 페이지'});
 });
 
-router.post('/sign-up', (req, res) => {
-    res.send('respond with a resource');
-});
+router.post('/signup', passport.authenticate('local-signup', {
+    successRedirect: '/user/profile',
+    failureRedirect: '/user/signup',
+    failureFlash: true
+}));
 
-router.get('/profile', (req, res) => {
+const isLoggedIn = (req, res, next) => {
+    if (req.isAuthenticated())
+        return next();
+    res.redirect('/user/login');
+}
+
+router.get('/profile', isLoggedIn, (req, res) => {
     res.render('pages/profile', {
         title: '사용자 프로필',
         userId: '테스트-아이디',
@@ -32,6 +43,7 @@ router.get('/profile', (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
+    req.logout();
     res.redirect('/user/login');
 });
 
