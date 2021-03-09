@@ -88,7 +88,75 @@
 ### passport / passport-local
 > 로그인 미들웨어  
 > 로그인에는 OAuth 및 자체 로그인(passport-local) 기능 제공  
-> 설치: `npm i passport passport-local`  
+> 현재 프로젝트에서는 회원 가입(signup) 및 로그인 기능으로 사용  
+> 설치: `npm i passport passport-local`    
+>
+> 정의: server/config/passport.js
+> ```javascript
+> /* 로그인에 사용할 LocalStrategy 정의 */
+> passport.use('local-login', new LocalStrategy({
+>     usernameField: 'userId',          /* view 의 form 에서 ID 로 사용하는 input 태그의 name 속성 값 */
+>     passwordField: 'userPassword',    /* view 의 form 에서 Password 로 사용하는 input 태그의 name 속성 값 */
+>     passReqToCallback: true,          /* 바로 다음 인자로 오는 콜백함수의 인자에 req 를 추가할지 여부 true: 추가 / false: 미추가(default) */
+> }, (req, userId, userPassword, done) => {
+>     process.nextTick(() => {
+>         User.findById(userId, (err, user) => {
+>             if (err) return done(err);
+>             if (!user) return done(null, false, req.flash('loginMessage', 'No user found.'));
+>             if (!user.validPassword(userPassword))
+>                 return done(null, false, req.flash('loginMessage', 'Wohh! Wrong password.'));
+>             else
+>                 return done(null, user);
+>         });
+>     });
+> }));
+> 
+> /* 회원가입(signup)에 사용할 LocalStrategy 정의 */
+> passport.use('local-signup', new LocalStrategy({
+>        usernameField: 'userId',
+>        passwordField: 'userPassword',
+>        passReqToCallback: true,
+> }, (req, userId, userPassword, done) => {
+>     process.nextTick(() => {
+>         if (!req.user) {
+>             User.findById(userId, (err, user) => {
+>                 if (err) return done(err, null);
+>                 if (user) {
+>                     return done(null, false, req.flash('signupMessage', 'Wohh! the ID is already taken.'));
+>                 } else {
+>                     let newUser = new User.User(
+>                         userId,
+>                         bcrypt.hashSync(userPassword, bcrypt.genSaltSync(8), null),
+>                         req.body.userName,
+>                         req.body.userPhone,
+>                         req.body.userEmail,
+>                     );
+>                     User.save(newUser, (err) => {
+>                         if (err) throw err;
+>                         return done(null, newUser);
+>                     });
+>                 }
+>             });
+>         }
+>     });
+> }));
+> ```
+> 사용: server/routes/user.js
+> ```javascript
+> /* '/login' 라우트에 위에서 정의한 로그인용 LocalStrategy 사용 */
+> router.post('/login', passport.authenticate('local-login', {
+>     successRedirect: '/user/profile',
+>     failureRedirect: '/user/login',
+>     failureFlash: true     /* true: LocalStrategy 에서 실패시 지정한 메시지를 Flash 등록, true가 아닌 문자열로 직접 값 대입 가능 */
+> }));
+> 
+> /* '/signup' 라우트에 위에서 정의한 회원가입용 LocalStrategy 사용 */
+> router.post('/signup', passport.authenticate('local-signup', {
+>     successRedirect: '/user/profile',
+>     failureRedirect: '/user/signup',
+>     failureFlash: true     /* true: LocalStrategy 에서 실패시 지정한 메시지를 Flash 등록, true가 아닌 문자열로 직접 값 대입 가능 */
+> }));
+> ```
 
 ### body-parser
 > POST로 요청된 body를 쉽게 추출할 수 있는 모듈  
@@ -141,8 +209,8 @@
 > // text: 텍스트 데이터인 경우
 > app.use(bodyParser.text());
 > ```
-> body-parser 를 통해 파싱된 request의 body는 req.body 를 통해서 사용할 수 있다.
-> 출처1: [body-parser 모듈 (urlencoded, extended 옵션)](https://sjh836.tistory.com/154)
-> 출처2: [Node - Express 미들웨어 body-parser](https://backback.tistory.com/336) 
+> body-parser 를 통해 파싱된 request의 body는 req.body 를 통해서 사용할 수 있다.  
+> 출처1: [body-parser 모듈 (urlencoded, extended 옵션)](https://sjh836.tistory.com/154)  
+> 출처2: [Node - Express 미들웨어 body-parser](https://backback.tistory.com/336)  
 
 
