@@ -29,11 +29,6 @@ app.engine('hbs', hbs({
 );
 app.set('view engine', 'hbs');
 
-require('./server/config/passport')(passport);
-app.use(passport.initialize({}));
-app.use(passport.session({}));
-app.use(flash());
-
 let env = app.get('env') || 'development';
 dbConfig.initDbPool(env);
 app.use(session({
@@ -49,6 +44,11 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(compression(null));
+
+require('./server/config/passport')(passport);
+app.use(passport.initialize({}));
+app.use(passport.session({}));
+app.use(flash());
 
 let server;
 app.use((req, res, next) => {

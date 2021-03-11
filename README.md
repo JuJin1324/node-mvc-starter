@@ -52,6 +52,24 @@
 ### connect-flash
 > 사용자 친화적인 메시지 출력  
 > 설치: `npm i connect-flash`  
+> 사용: connect-flash 미들웨어는 `cookie-parser` 와 `express-session`을 사용하므로 이들보다 뒤에 위치해야한다.
+> ```javascript
+> const flash = require('connect-flash');
+> app.use(flash());
+> 
+> router.get('/flash', (req, res) => {
+>   req.flash('message', 'flash 메시지 테스트.');
+>   req.session.message = 'session 메시지 테스트.';
+>   res.redirect('/flash/result');
+> });
+> 
+> router.get('/flash/result', (req, res) => {
+>   res.send(`일회용 메시지: ${req.flash('message')}, 세션 메시지: ${req.session.message}`);
+> });
+> ```
+> `http://localhost:3000/flash` 호출 후 '/flash/result' 페이지에서 새로 고침을 하면 세션 메시지는 동일하게 나타나는 반면, flash 메시지는 다시 나타나지 않는다.    
+> flash 메시지는 일회용이기 때문이다. 그렇기에 로그인 에러 혹은 회원가입 에러 같은 일회성 경고 메시지는 flash 메시지를 사용하는 것이 좋다.  
+> 참조사이트: [Node - Express 미들웨어 connect-flash](https://backback.tistory.com/340)
 
 ### express-session
 > 서버에서 저장하는 세션 정보 사용을 위한 middleware  
@@ -90,7 +108,71 @@
 > 로그인에는 OAuth 및 자체 로그인(passport-local) 기능 제공  
 > 현재 프로젝트에서는 회원 가입(signup) 및 로그인 기능으로 사용  
 > 설치: `npm i passport passport-local`    
+> 
+> 프로세스:   
+> 1. router 에 `(req, res)` 함수 대신에 `passport.authenticate` 함수를 콜백으로 넣는다.
+> ```javascript
+> router.post('/login', passport.authenticate('local-login', {
+>     failureRedirect: '/user/login',
+>     failureFlash: true     /* true: LocalStrategy 에서 실패시 지정한 메시지를 Flash 등록, true가 아닌 문자열로 직접 값 대입 가능 */
+> }));
+> ```
+> 2. `passport.authenticate` 의 첫번째 인자로 넣어진 `local-login`가 첫번째 인자로 넣어진 `passport.use` 함수 호출 부분으로 넘어간다.
+> ```javascript
+> passport.use('local-login', new LocalStrategy({
+>        usernameField: 'userId',
+>        passwordField: 'userPassword',
+>        passReqToCallback: true,
+>    }, (req, userId, userPassword, done) => {
+>        process.nextTick(() => {
+>            logger.debug(`[local-login] LocalStrategy: [userId: ${userId}, userPassword: ${userPassword}]`);
+>            User.findById(userId, (err, user) => {
+>                if (err) return done(err);
 >
+>                if (!user) {
+>                    logger.debug('존재하지 않는 사용자입니다: ' + userId);
+>                    return done(null, false, req.flash('loginMessage', '존재하지 않는 사용자입니다.'));
+>                } else if (!user.validPassword(userPassword)) {
+>                    logger.debug('비밀번호가 일치하지 않습니다: ' + userPassword);
+>                    return done(null, false, req.flash('loginMessage', '비밀번호가 일치하지 않습니다.'));
+>                } else {
+>                    logger.debug('로그인 성공!');
+>                    return done(null, user);
+>                }
+>            });
+>        });
+>    }));
+> ```
+> 3. `return done(null, user)` 처리가 되면 `passport.serializeUser`의 콜백으로 넘어간다. 
+> ```javascript
+> passport.serializeUser((user, done) => {
+>        logger.debug('[serializeUser] user: ' + JSON.stringify(user, ' ', 4));
+>        done(null, user.id);
+>    });
+> ```
+> 4. `done(null, user.id)` 에 2번째 인자로 넣은 `user.id` 가 세션에 저장된다.
+> 5. 로그인 처리 후에 라우터에서 `req.user` 를 사용할 수 있다.
+> ```javascript
+> router.get('/profile', authMiddleware.isLoggedIn, (req, res) => {
+>     res.render('pages/profile', {
+>         title: '사용자 프로필',
+>         userId: req.user.id ? req.user.id : '-',
+>         userName: req.user.name ? req.user.name : '-',
+>         userPhone: req.user.phone ? req.user.phone : '-',
+>         userEmail: req.user.email ? req.user.email : '-',
+>     });
+> });
+> ```
+> 6. req.user 사용 시 `passport.deserializeUser`의 콜백이 실행되어 세션에 저장된 id 를 통해서 user 정보를 req.user 에 넣어준다.
+> ```javascript
+> passport.deserializeUser((id, done) => {
+>        logger.debug('[deserializeUser] id: ' + id);
+>        User.findById(id, (err, user) => {
+>            done(err, user);
+>        });
+>    });
+> ```
+> 
 > 정의: server/config/passport.js
 > ```javascript
 > /* 로그인에 사용할 LocalStrategy 정의 */
@@ -145,7 +227,6 @@
 > ```javascript
 > /* '/login' 라우트에 위에서 정의한 로그인용 LocalStrategy 사용 */
 > router.post('/login', passport.authenticate('local-login', {
->     successRedirect: '/user/profile',
 >     failureRedirect: '/user/login',
 >     failureFlash: true     /* true: LocalStrategy 에서 실패시 지정한 메시지를 Flash 등록, true가 아닌 문자열로 직접 값 대입 가능 */
 > }));

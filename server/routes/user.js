@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const authMiddleware = require('../middleware/auth');
 
 /* GET login. */
 router.get('/login', (req, res) => {
@@ -9,10 +10,10 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login', passport.authenticate('local-login', {
-    successRedirect: '/user/profile',
+    // successRedirect: '/user/profile',
     failureRedirect: '/user/login',
     failureFlash: true
-}));
+}, null));
 
 /* GET sign-in*/
 router.get('/signup', (req, res) => {
@@ -24,21 +25,15 @@ router.post('/signup', passport.authenticate('local-signup', {
     successRedirect: '/user/profile',
     failureRedirect: '/user/signup',
     failureFlash: true
-}));
+}, null));
 
-const isLoggedIn = (req, res, next) => {
-    if (req.isAuthenticated())
-        return next();
-    res.redirect('/user/login');
-}
-
-router.get('/profile', isLoggedIn, (req, res) => {
+router.get('/profile', authMiddleware.isLoggedIn, (req, res) => {
     res.render('pages/profile', {
         title: '사용자 프로필',
-        userId: '테스트-아이디',
-        userName: '테스트-이름',
-        userPhone: '010-1234-1234',
-        userEmail: 'test@gmail.com',
+        userId: req.user.id ? req.user.id : '-',
+        userName: req.user.name ? req.user.name : '-',
+        userPhone: req.user.phone ? req.user.phone : '-',
+        userEmail: req.user.email ? req.user.email : '-',
     });
 });
 

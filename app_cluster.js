@@ -7,13 +7,17 @@ const startWorker = () => {
 };
 
 if (cluster.isMaster) {
-    /* If you want multi process node uncomment below */
+    /* If you want multi process nodes -> uncomment below */
     // require('os').cpus().forEach(() => {
     //     startWorker();
     // });
+
+    /* If you want dual process nodes -> uncomment below */
     // [0, 1].forEach(() => {
     //     startWorker();
     // })
+
+    /* If you want a single process node */
     startWorker();
 
     /* disconnect -> exit */
