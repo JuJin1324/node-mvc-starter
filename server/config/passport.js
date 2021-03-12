@@ -13,8 +13,11 @@ module.exports = passport => {
     /* session 을 위한 user 역직렬화 */
     passport.deserializeUser((id, done) => {
         logger.debug('[deserializeUser] id: ' + id);
-        User.findById(id, (err, user) => {
-            done(err, user);
+        User.findById(id).then(user => {
+            done(null, user);
+        }).catch(err => {
+            logger.error(err);
+            done(err);
         });
     });
 
@@ -26,9 +29,8 @@ module.exports = passport => {
     }, (req, userId, userPassword, done) => {
         process.nextTick(() => {
             logger.debug(`[local-login] LocalStrategy: [userId: ${userId}, userPassword: ${userPassword}]`);
-            User.findById(userId, (err, user) => {
-                if (err) return done(err);
 
+            User.findById(userId).then(user => {
                 if (!user) {
                     logger.debug('존재하지 않는 사용자입니다: ' + userId);
                     /* TODO: req.flash: view 에 flash 메시지 뿌리기, Node-Starter 참조. */
@@ -40,6 +42,9 @@ module.exports = passport => {
                     logger.debug('로그인 성공!');
                     return done(null, user);
                 }
+            }).catch(err => {
+                logger.error(err);
+                return done(err);
             });
         });
     }));
@@ -49,27 +54,30 @@ module.exports = passport => {
         passwordField: 'userPassword',
         passReqToCallback: true,
     }, (req, userId, userPassword, done) => {
-        process.nextTick(() => {
+        process.nextTick(async () => {
             logger.debug(`[local-signup] LocalStrategy: [userId: ${userId}, userPassword: ${userPassword}]`);
             if (!req.user) {
-                User.findById(userId, (err, user) => {
-                    if (err) return done(err, null);
+                try {
+                    const user = await User.findById(userId);
                     if (user) {
                         return done(null, false, req.flash('signupMessage', '이미 사용 중인 아이디입니다.'));
-                    } else {
-                        let newUser = new User.User(
-                            userId,
-                            bcrypt.hashSync(userPassword, bcrypt.genSaltSync(8), null),
-                            req.body.userName,
-                            req.body.userPhone,
-                            req.body.userEmail,
-                        );
-                        User.save(newUser, (err) => {
-                            if (err) throw err;
-                            return done(null, newUser);
-                        });
                     }
-                });
+
+                    const encryptedPassword =
+                        bcrypt.hashSync(userPassword, bcrypt.genSaltSync(8), null);
+                    let newUser = new User.User(
+                        userId,
+                        encryptedPassword,
+                        req.body.userName,
+                        req.body.userPhone,
+                        req.body.userEmail,
+                    );
+                    await User.save(newUser);
+                    return done(null, newUser);
+                } catch (err) {
+                    logger.error(err);
+                    return done(err);
+                }
             }
         });
     }));

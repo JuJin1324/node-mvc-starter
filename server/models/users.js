@@ -15,72 +15,69 @@ class User {
     }
 }
 
-const findById = (id, callback) => {
+const findById = async (id) => {
     let sql = `
-        SELECT DU.USER_ID  id
-             , DP.PASSWORD password
-             , DU.NAME     name
-             , DU.PHONE    phone
-             , DU.EMAIL    email
+        SELECT DU.USER_ID  'id'
+             , DP.PASSWORD 'password'
+             , DU.NAME     'name'
+             , DU.PHONE    'phone'
+             , DU.EMAIL    'email'
         FROM DEV_USER DU,
              DEV_PASSWORD DP
-        WHERE DU.USER_ID = '${id}'
+        WHERE DU.USER_ID = ?
           AND DP.USER_KEY = DU.USER_KEY
     `;
 
-    dbConfig.query(sql, (err, rows) => {
-        if (err) {
-            callback(err, null);
-        } else if (rows[0]) {
-            callback(null, new User(rows[0].id, rows[0].password, rows[0].name, rows[0].phone, rows[0].email));
-        } else {
-            callback(null, null);
-        }
-    });
+    let rows = await dbConfig.select(sql, [id]);
+    if (!rows[0]) {
+        return null;
+    }
+
+    return new User(
+        rows[0].id,
+        rows[0].password,
+        rows[0].name,
+        rows[0].phone,
+        rows[0].email
+    );
 };
 
-const save = (user, callback) => {
+const save = async user => {
+    await saveUser(user);
+    await savePassword(user);
+};
+
+const saveUser = async user => {
     let insertUserSql = `
-        INSERT INTO DEV_USER(USER_ID, NAME, PHONE, EMAIL, STATUS, COMMENT, DEL_FLAG, UPD_USER_KEY) 
-        VALUE ('${user.id}', '${user.name}', '${user.phone}', '${user.email}', 'A', null, 'N', 1);
+        INSERT INTO DEV_USER(USER_ID, NAME, PHONE, EMAIL, STATUS, COMMENT, DEL_FLAG, UPD_USER_KEY)
+            VALUE (?, ?, ?, ?, 'A', NULL, 'N', 1)
     `;
-    dbConfig.query(insertUserSql, (err, rows) => {
-        if (err) {
-            callback(err);
-        } else {
-            findKeyById(user.id, (err, userKey) => {
-                let insertPasswordSql = `
-                    INSERT INTO DEV_PASSWORD(USER_KEY, PASSWORD, PWD_STATUS, DEL_FLAG, UPD_USER_KEY) 
-                    VALUES (${userKey}, '${user.password}', 'I', 'N', ${userKey}); 
-                `;
-                dbConfig.query(insertPasswordSql, (err, rows) => {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        callback(null);
-                    }
-                });
-            });
-        }
-    });
-};
+    await dbConfig.insert(insertUserSql, [user.id, user.name, user.phone, user.email]);
+}
 
-const findKeyById = (id, callback) => {
+const savePassword = async user => {
+    const userKey = await findKeyById(user.id);
+
+    let insertPasswordSql = `
+        INSERT INTO DEV_PASSWORD(USER_KEY, PASSWORD, PWD_STATUS, DEL_FLAG, UPD_USER_KEY)
+        VALUES (?, ?, 'I', 'N', ?)
+    `;
+    await dbConfig.insert(insertPasswordSql, [userKey, user.password, userKey]);
+}
+
+const findKeyById = async id => {
     let sql = `
-        SELECT USER_KEY userKey
-        FROM DEV_USER 
-        WHERE USER_ID = '${id}'
+        SELECT USER_KEY 'userKey'
+        FROM DEV_USER
+        WHERE USER_ID = ?
     `;
 
-    dbConfig.query(sql, (err, rows) => {
-        if (err) {
-            callback(err, null);
-        } else if (rows[0]) {
-            callback(null, rows[0].userKey);
-        } else {
-            callback(null, null);
-        }
-    });
+    let rows = await dbConfig.select(sql, [id]);
+    if (!rows[0]) {
+        return null;
+    }
+
+    return rows[0].userKey;
 };
 
 module.exports = {

@@ -10,11 +10,11 @@ const logger = require('./lib/logger');
 
 const indexRouter = require('./server/routes/index');
 const userRouter = require('./server/routes/user');
+const commentRouter = require('./server/routes/comment');
 const dbConfig = require("./server/config/dbconfig");
 const credentials = require("./credentials");
 const passport = require('passport');
 const flash = require('connect-flash');
-const comments = require('./server/controllers/comments');
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
@@ -85,9 +85,7 @@ app.use((req, res, next) => {
 
 app.use('/', indexRouter);
 app.use('/user', userRouter);
-
-app.get('/comments', comments.hasAuthorization, comments.list);
-app.post('/comments', comments.hasAuthorization, comments.create);
+app.use('/comment', commentRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

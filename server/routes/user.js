@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-const authMiddleware = require('../middleware/auth');
+const auth = require('../middleware/auth');
 
 /* GET login. */
 router.get('/login', (req, res) => {
-    // res.render('pages/login', {title: '로그인 페이지', message: req.flash('loginMessage')});
     res.render('pages/login', {title: '로그인 페이지'});
+    // res.render('pages/login', {title: '로그인 페이지', message: req.flash('loginMessage')});
 });
 
 router.post('/login', passport.authenticate('local-login', {
-    // successRedirect: '/user/profile',
+    successRedirect: '/',
     failureRedirect: '/user/login',
     failureFlash: true
 }, null));
@@ -27,7 +27,7 @@ router.post('/signup', passport.authenticate('local-signup', {
     failureFlash: true
 }, null));
 
-router.get('/profile', authMiddleware.isLoggedIn, (req, res) => {
+router.get('/profile', auth.hasAuthorized, (req, res) => {
     res.render('pages/profile', {
         title: '사용자 프로필',
         userId: req.user.id ? req.user.id : '-',
@@ -37,7 +37,7 @@ router.get('/profile', authMiddleware.isLoggedIn, (req, res) => {
     });
 });
 
-router.get('/logout', (req, res) => {
+router.get('/logout', auth.hasAuthorized, (req, res) => {
     req.logout();
     res.redirect('/user/login');
 });

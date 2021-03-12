@@ -18,6 +18,7 @@ const getDbOptions = (env) => {
                 password: credentials.mariadb.development.password,
                 database: credentials.mariadb.development.database,
                 sessionTable: credentials.mariadb.development.sessionTable,
+                timezone: 'Asia/Seoul',
                 expiration: 600000,  /* ms */
             };
             break;
@@ -29,6 +30,7 @@ const getDbOptions = (env) => {
                 password: credentials.mariadb.production.password,
                 database: credentials.mariadb.production.database,
                 sessionTable: credentials.mariadb.production.sessionTable,
+                timezone: 'Asia/Seoul',
                 expiration: 600000,  /* ms */
             };
             break;
@@ -43,20 +45,27 @@ const getConnection = () => {
     return pool.getConnection();
 };
 
-const query = (query, callback) => {
-    getConnection().then(conn => {
-        try {
-            conn.query(query).then(rows => {
-                callback(null, rows);
-            });
-        } catch (err) {
-            callback(err, null);
-        } finally {
-            conn.end();
-        }
-    }).catch(err => {
-        callback(err, null);
-    });
+const insert = async (query, elemArr) => {
+    const conn = await getConnection();
+    try {
+        await conn.query(query, elemArr);
+    } catch (err) {
+        throw err;
+    } finally {
+        await conn.end();
+    }
+}
+
+const select = async (query, elemArr) => {
+    const conn = await getConnection();
+    try {
+        const rows = await conn.query(query, elemArr);
+        return rows;
+    } catch (err) {
+        throw err;
+    } finally {
+        await conn.end();
+    }
 }
 
 module.exports = {
@@ -70,9 +79,11 @@ module.exports = {
             password: dbOptions.password,
             host: dbOptions.host,
             database: dbOptions.database,
+            timezone: dbOptions.timezone,
             connectionLimit: 5
         });
     },
-    getConnection: getConnection,
-    query: query,
+    getConnection,
+    select,
+    insert,
 };
