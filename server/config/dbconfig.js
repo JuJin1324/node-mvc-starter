@@ -52,7 +52,7 @@ const insert = async (query, elemArr) => {
     } catch (err) {
         throw err;
     } finally {
-        await conn.end();
+        if (conn) conn.release();
     }
 }
 
@@ -64,7 +64,7 @@ const select = async (query, elemArr) => {
     } catch (err) {
         throw err;
     } finally {
-        await conn.end();
+        if (conn) conn.release();
     }
 }
 

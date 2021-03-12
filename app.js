@@ -7,6 +7,7 @@ const compression = require('compression');
 const session = require("express-session");
 const MariaDBStore = require('express-session-mariadb-store');
 const logger = require('./lib/logger');
+const bodyParser = require('body-parser');
 
 const indexRouter = require('./server/routes/index');
 const userRouter = require('./server/routes/user');
@@ -39,8 +40,8 @@ app.use(session({
     store: new MariaDBStore(dbConfig.getDbOptions(env)),
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(compression(null));

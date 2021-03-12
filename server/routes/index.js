@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 
 /* GET home page. */
-router.get('/', auth.hasAuthorized,  (req, res, next) => {
+router.get('/', auth.hasAuthenticated, (req, res) => {
     res.render('pages/index', {title: 'Express from server directory'});
 });
 

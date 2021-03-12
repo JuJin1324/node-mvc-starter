@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const commentController = require('../controllers/comment');
 
-router.get('/', auth.hasAuthorized, commentController.list);
-router.post('/', auth.hasAuthorized, commentController.create);
+router.get('/', auth.hasAuthenticated, commentController.list);
+router.post('/', auth.hasAuthenticated, commentController.create);
 
 module.exports = router;
