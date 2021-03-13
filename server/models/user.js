@@ -17,15 +17,17 @@ class User {
 
 const findById = async (id) => {
     let sql = `
-        SELECT DU.USER_ID  'id'
-             , DP.PASSWORD 'password'
-             , DU.NAME     'name'
-             , DU.PHONE    'phone'
-             , DU.EMAIL    'email'
-        FROM DEV_USER DU,
-             DEV_PASSWORD DP
-        WHERE DU.USER_ID = ?
-          AND DP.USER_KEY = DU.USER_KEY
+        SELECT UR.USER_ID  'id'
+             , PW.PASSWORD 'password'
+             , UR.NAME     'name'
+             , UR.PHONE    'phone'
+             , UR.EMAIL    'email'
+        FROM DEV_USER UR,
+             DEV_PASSWORD PW
+        WHERE UR.USER_ID = ?
+          AND UR.DEL_FLAG = 'N'
+          AND PW.USER_KEY = UR.USER_KEY
+          AND PW.DEL_FLAG = 'N'
     `;
 
     let rows = await dbConfig.select(sql, [id]);

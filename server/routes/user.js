@@ -6,7 +6,17 @@ const logger = require('../../lib/logger');
 
 /* GET login. */
 router.get('/login', (req, res) => {
-    res.render('pages/login', {title: '로그인 페이지'});
+    let flash = req.flash();
+    if (flash.error) {
+        flash = {
+            type: 'danger',
+            message: flash.error[0],
+        };
+    } else {
+        flash = null;
+    }
+
+    res.render('pages/login', {title: '로그인 페이지', flash: flash});
     // res.render('pages/login', {title: '로그인 페이지', message: req.flash('loginMessage')});
 });
 
@@ -54,7 +64,7 @@ router.get('/profile', auth.hasAuthenticated, (req, res) => {
 
 router.get('/logout', auth.hasAuthenticated, (req, res) => {
     req.logout();
-    req.session.save(err => {
+    req.session.destroy(err => {
         if (err) {
             logger.error(err);
             return;

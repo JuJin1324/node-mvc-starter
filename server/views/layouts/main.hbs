@@ -32,7 +32,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuComments" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
-                    Comments
+                    Comment
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuComments">
                     <a class="dropdown-item" href="/comment">comments</a>
@@ -43,6 +43,13 @@
 </nav>
 
 {{{body}}}
+
+{{#if flash}}
+    <div class="alert alert-dismissible alert-{{flash.type}}">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        {{{flash.message}}}
+    </div>
+{{/if}}
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"

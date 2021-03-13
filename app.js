@@ -43,13 +43,13 @@ app.use(session({
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(compression(null));
 
 require('./server/config/passport')(passport);
 app.use(passport.initialize({}));
 app.use(passport.session({}));
-app.use(flash());
 
 let server;
 app.use((req, res, next) => {

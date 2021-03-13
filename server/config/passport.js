@@ -1,5 +1,5 @@
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('../models/users');
+const User = require('../models/user');
 const bcrypt = require('bcrypt-nodejs');
 const logger = require('../../lib/logger');
 
@@ -33,10 +33,12 @@ module.exports = passport => {
             if (!user) {
                 logger.debug('존재하지 않는 사용자입니다: ' + userId);
                 /* TODO: req.flash: view 에 flash 메시지 뿌리기, Node-Starter 참조. */
-                return done(null, false, req.flash('loginMessage', '존재하지 않는 사용자입니다.'));
+                // return done(null, false, req.flash('loginMessage', '존재하지 않는 사용자입니다.'));
+                return done(null, false, {message: '존재하지 않는 사용자입니다.'});
             } else if (!user.validPassword(userPassword)) {
                 logger.debug('비밀번호가 일치하지 않습니다: ' + userPassword);
-                return done(null, false, req.flash('loginMessage', '비밀번호가 일치하지 않습니다.'));
+                // return done(null, false, req.flash('loginMessage', '비밀번호가 일치하지 않습니다.'));
+                return done(null, false, {message: '비밀번호가 일치하지 않습니다.'});
             } else {
                 logger.debug('로그인 성공!');
                 return done(null, user);

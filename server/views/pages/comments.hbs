@@ -1,7 +1,7 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-6">
-            <h4 class="text-muted">Comments</h4>
+            <h4 class="text-muted">Comment</h4>
         </div>
         <div class="col-lg-6">
             <button type="button" class="btn btn-secondary pull-right" data-toggle="modal" data-target="#createPost">
@@ -11,27 +11,29 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="createPost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal fade" id="createPost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
         <div class="model-dialog" role="document">
             <div class="modal-content">
-                <form action="/comments" method="post">
+                <form action="/comment" method="post">
                     <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Create Comment</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title" id="myModalLabel">Create Comment</h4>
                     </div>
                     <div class="modal-body">
                         <fieldset class="form-group">
                             <label for="inputTitle">Title</label>
-                            <input type="text" id="inputTitle" name="title" class="form-control" placeholder="Comment Title"
+                            <input type="text" id="inputTitle" name="title" class="form-control"
+                                   placeholder="Comment Title"
                                    required="">
                         </fieldset>
                         <fieldset class="form-group">
                             <label for="inputContent">Content</label>
-                            <textarea id="inputContent" name="content" class="form-control" placeholder="Comment Description"
-                                   required="">
-                            </textarea>
+                            <textarea id="inputContent" name="content" class="form-control"
+                                      placeholder="Comment Description"
+                                      required=""></textarea>
                         </fieldset>
                     </div>
                     <div class="modal-footer">
@@ -52,7 +54,7 @@
                     <div class="comments">
                         <h4 class="list-group-item-heading">{{title}}</h4>
                         <p class="list-group-item-text">{{content}}</p>
-                        <small class="text-muted">By: {{user.email}}</small>
+                        <small class="text-muted">By: {{userId}}</small>
                     </div>
                 </a>
             {{/comments}}

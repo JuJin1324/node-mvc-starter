@@ -1,6 +1,6 @@
 const assert = require('chai').assert;
 const dbConfig = require('../../../server/config/dbconfig');
-const User = require('../../../server/models/users');
+const User = require('../../../server/models/user');
 const bcrypt = require('bcrypt-nodejs');
 
 describe('findById', () => {
@@ -61,7 +61,7 @@ describe('save', () => {
         );
     });
 
-    it('should exist value when ID is valid.', (done) => {
+    it('should be found when a user saving is OK.', (done) => {
         User.save(user).then(() => {
             User.findById(user.id).then(user => {
                 assert.equal(user.id, 'test100');

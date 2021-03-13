@@ -10,5 +10,5 @@ ENV LC_ALL ko_KR.UTF-8
 ENV LANGUAGE ko_KR.UTF-8
 RUN update-locale LANG=ko_KR.UTF-8
 
-ADD init.sql /docker-entrypoint-initdb.d/
-
+ADD init1.sql /docker-entrypoint-initdb.d/
+ADD init2.sql /docker-entrypoint-initdb.d/
