@@ -1,6 +1,6 @@
 const assert = require('chai').assert;
 const dbConfig = require('../../../server/config/dbconfig');
-const Comment = require('../../../server/models/comment');
+const models = require('../../../server/models/raw');
 
 describe('findAll', () => {
     before(() => {
@@ -8,7 +8,7 @@ describe('findAll', () => {
     });
 
     it('should exist value when ID is valid.', (done) => {
-        Comment.findAll().then(commentList => {
+        models.comment.findAll().then(commentList => {
             let englishComment = commentList[0];
             assert.equal(englishComment.title, 'test title1');
             assert.equal(englishComment.content, 'test content1');

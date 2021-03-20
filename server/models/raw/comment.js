@@ -1,5 +1,5 @@
-const dbConfig = require('../config/dbconfig');
-const User = require('./user');
+const dbConfig = require('../../config/dbconfig');
+const user = require('./user');
 
 class Comment {
     constructor(title, content, inputTime, userId) {
@@ -10,7 +10,7 @@ class Comment {
     }
 }
 
-exports.findAll = async () => {
+const findAll = async () => {
     let sql = `
         SELECT CM.TITLE      'title'
              , CM.CONTENT    'content'
@@ -30,15 +30,17 @@ exports.findAll = async () => {
     return rows.map(row => new Comment(row.title, row.content, row.inputTime, row.userId));
 }
 
-exports.save = async comments => {
-    let userKey = await User.findKeyById(comments.user.id);
+const save = async comment => {
+    let userKey = await user.findKeyById(comment.userId);
     let sql = `
         INSERT INTO DEV_COMMENTS(TITLE, CONTENT, DEL_FLAG, UPD_USER_KEY, INPUT_TIME)
         VALUES (?, ?, 'N', ?, NOW())
     `;
-    await dbConfig.insert(sql, [comments.title, comments.content, userKey]);
+    await dbConfig.insert(sql, [comment.title, comment.content, userKey]);
 }
 
 module.exports = {
     Comment,
+    findAll,
+    save,
 }

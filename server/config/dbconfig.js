@@ -69,7 +69,6 @@ const select = async (query, elemArr) => {
 }
 
 module.exports = {
-    getDbOptions: getDbOptions,
     initDbPool: (env) => {
         if (pool) return;
 
@@ -83,6 +82,7 @@ module.exports = {
             connectionLimit: 5
         });
     },
+    getDbOptions,
     getConnection,
     select,
     insert,

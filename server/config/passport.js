@@ -1,5 +1,5 @@
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('../models/user');
+const models = require('../models/raw');
 const bcrypt = require('bcrypt-nodejs');
 const logger = require('../../lib/logger');
 
@@ -13,7 +13,7 @@ module.exports = passport => {
     /* session 을 위한 user 역직렬화 */
     passport.deserializeUser((id, done) => {
         logger.debug('[deserializeUser] id: ' + id);
-        User.findById(id).then(user => {
+        models.user.findById(id).then(user => {
             done(null, user);
         }).catch(err => {
             logger.error(err);
@@ -29,7 +29,7 @@ module.exports = passport => {
     }, (req, userId, userPassword, done) => {
         logger.debug(`[local-login] LocalStrategy: [userId: ${userId}, userPassword: ${userPassword}]`);
 
-        User.findById(userId).then(user => {
+        models.user.findById(userId).then(user => {
             if (!user) {
                 logger.debug('존재하지 않는 사용자입니다: ' + userId);
                 /* TODO: req.flash: view 에 flash 메시지 뿌리기, Node-Starter 참조. */
@@ -58,21 +58,21 @@ module.exports = passport => {
             logger.debug(`[local-signup] LocalStrategy: [userId: ${userId}, userPassword: ${userPassword}]`);
             if (!req.user) {
                 try {
-                    const user = await User.findById(userId);
+                    const user = await models.user.findById(userId);
                     if (user) {
                         return done(null, false, req.flash('signupMessage', '이미 사용 중인 아이디입니다.'));
                     }
 
                     const encryptedPassword =
                         bcrypt.hashSync(userPassword, bcrypt.genSaltSync(8), null);
-                    let newUser = new User.User(
+                    let newUser = new models.user.User(
                         userId,
                         encryptedPassword,
                         req.body.userName,
                         req.body.userPhone,
                         req.body.userEmail,
                     );
-                    await User.save(newUser);
+                    await models.user.save(newUser);
                     return done(null, newUser);
                 } catch (err) {
                     logger.error(err);

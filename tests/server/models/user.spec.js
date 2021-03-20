@@ -1,6 +1,6 @@
 const assert = require('chai').assert;
 const dbConfig = require('../../../server/config/dbconfig');
-const User = require('../../../server/models/user');
+const models = require('../../../server/models/raw');
 const bcrypt = require('bcrypt-nodejs');
 
 describe('findById', () => {
@@ -9,7 +9,7 @@ describe('findById', () => {
     });
 
     it('should exist value when ID is valid.', (done) => {
-        User.findById('test1').then(user => {
+        models.user.findById('test1').then(user => {
             assert.equal(user.id, 'test1');
             assert.isTrue(user.validPassword('1234'));
             assert.equal(user.name, '홍길동');
@@ -20,7 +20,7 @@ describe('findById', () => {
     });
 
     it('should be null when ID is invalid.', (done) => {
-        User.findById('invalid_ID').then(user => {
+        models.user.findById('invalid_ID').then(user => {
             assert.isNull(user);
             done();
         });
@@ -33,14 +33,14 @@ describe('findKeyById', () => {
     });
 
     it('should exist value when ID is valid.', (done) => {
-        User.findKeyById('test1').then(key => {
+        models.user.findKeyById('test1').then(key => {
             assert.equal(key, '1');
             done();
         });
     });
 
     it('should be null when ID is invalid.', (done) => {
-        User.findKeyById('invalid_ID').then(key => {
+        models.user.findKeyById('invalid_ID').then(key => {
             assert.isNull(key);
             done();
         });
@@ -52,7 +52,7 @@ describe('save', () => {
 
     before(() => {
         dbConfig.initDbPool('development');
-        user = new User.User(
+        user = new models.user.User(
             'test100',
             bcrypt.hashSync('1234', bcrypt.genSaltSync(8), null),
             '홍길자',
@@ -62,8 +62,8 @@ describe('save', () => {
     });
 
     it('should be found when a user saving is OK.', (done) => {
-        User.save(user).then(() => {
-            User.findById(user.id).then(user => {
+        models.user.save(user).then(() => {
+            models.user.findById(user.id).then(user => {
                 assert.equal(user.id, 'test100');
                 assert.isTrue(user.validPassword('1234'));
                 assert.equal(user.name, '홍길자');
@@ -92,14 +92,14 @@ describe('save', () => {
 
 describe('findKeyById', () => {
     it('should exist value when ID is valid.', (done) => {
-        User.findKeyById('test1').then(key => {
+        models.user.findKeyById('test1').then(key => {
             assert.equal(key, 1);
             done();
         });
     });
 
     it('should be null when ID is invalid.', (done) => {
-        User.findKeyById('invalid_ID').then(key => {
+        models.user.findKeyById('invalid_ID').then(key => {
             assert.isNull(key);
             done();
         });

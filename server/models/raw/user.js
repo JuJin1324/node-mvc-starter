@@ -1,4 +1,4 @@
-const dbConfig = require('../config/dbconfig');
+const dbConfig = require('../../config/dbconfig');
 const bcrypt = require('bcrypt-nodejs');
 
 class User {
@@ -15,7 +15,7 @@ class User {
     }
 }
 
-exports.findById = async (id) => {
+const findById = async id => {
     let sql = `
         SELECT UR.USER_ID  'id'
              , PW.PASSWORD 'password'
@@ -44,7 +44,7 @@ exports.findById = async (id) => {
     );
 };
 
-exports.save = async user => {
+const save = async user => {
     await saveUser(user);
     await savePassword(user);
 };
@@ -55,7 +55,7 @@ const saveUser = async user => {
             VALUE (?, ?, ?, ?, 'A', NULL, 'N', 1)
     `;
     await dbConfig.insert(insertUserSql, [user.id, user.name, user.phone, user.email]);
-}
+};
 
 const savePassword = async user => {
     const userKey = await findKeyById(user.id);
@@ -65,9 +65,9 @@ const savePassword = async user => {
         VALUES (?, ?, 'I', 'N', ?)
     `;
     await dbConfig.insert(insertPasswordSql, [userKey, user.password, userKey]);
-}
+};
 
-exports.findKeyById = async id => {
+const findKeyById = async id => {
     let sql = `
         SELECT USER_KEY 'userKey'
         FROM DEV_USER
@@ -84,4 +84,7 @@ exports.findKeyById = async id => {
 
 module.exports = {
     User,
-}
+    findById,
+    save,
+    findKeyById,
+};
