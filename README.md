@@ -223,7 +223,7 @@
 >     });
 > }));
 > ```
-> 사용: server/routes/user.js
+> 사용: server/routes/index.js
 > ```javascript
 > /* '/login' 라우트에 위에서 정의한 로그인용 LocalStrategy 사용 */
 > router.post('/login', passport.authenticate('local-login', {

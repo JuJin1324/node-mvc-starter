@@ -10,7 +10,7 @@ class Comment {
     }
 }
 
-const findAll = async () => {
+exports.findAll = async () => {
     let sql = `
         SELECT CM.TITLE      'title'
              , CM.CONTENT    'content'
@@ -30,7 +30,7 @@ const findAll = async () => {
     return rows.map(row => new Comment(row.title, row.content, row.inputTime, row.userId));
 }
 
-const save = async comments => {
+exports.save = async comments => {
     let userKey = await User.findKeyById(comments.user.id);
     let sql = `
         INSERT INTO DEV_COMMENTS(TITLE, CONTENT, DEL_FLAG, UPD_USER_KEY, INPUT_TIME)
@@ -41,6 +41,4 @@ const save = async comments => {
 
 module.exports = {
     Comment,
-    save,
-    findAll,
 }

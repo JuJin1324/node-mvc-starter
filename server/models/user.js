@@ -15,7 +15,7 @@ class User {
     }
 }
 
-const findById = async (id) => {
+exports.findById = async (id) => {
     let sql = `
         SELECT UR.USER_ID  'id'
              , PW.PASSWORD 'password'
@@ -44,7 +44,7 @@ const findById = async (id) => {
     );
 };
 
-const save = async user => {
+exports.save = async user => {
     await saveUser(user);
     await savePassword(user);
 };
@@ -67,7 +67,7 @@ const savePassword = async user => {
     await dbConfig.insert(insertPasswordSql, [userKey, user.password, userKey]);
 }
 
-const findKeyById = async id => {
+exports.findKeyById = async id => {
     let sql = `
         SELECT USER_KEY 'userKey'
         FROM DEV_USER
@@ -84,7 +84,4 @@ const findKeyById = async id => {
 
 module.exports = {
     User,
-    findById,
-    save,
-    findKeyById,
 }

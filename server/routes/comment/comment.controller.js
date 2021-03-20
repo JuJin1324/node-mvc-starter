@@ -1,10 +1,10 @@
-const Comment = require('../models/comment');
+const CommentController = require('../../models/comment');
 
-const list = (req, res) => {
-    Comment.findAll().then(commentsList => {
+exports.list = (req, res) => {
+    CommentController.findAll().then(commentsList => {
         console.log('commentsList:', commentsList);
         res.render('pages/comments', {
-            title: 'Comment Page',
+            title: 'CommentController Page',
             comments: commentsList,
         });
     }).catch(err => {
@@ -12,18 +12,13 @@ const list = (req, res) => {
     });
 };
 
-const create = (req, res) => {
+exports.create = (req, res) => {
     let {title, content} = req.body;
-    let comment = new Comment.Comment(title, content, null);
+    let comment = new CommentController.Comment(title, content, null);
     comment.user = req.user;
-    Comment.save(comment).then(() => {
+    CommentController.save(comment).then(() => {
         res.redirect('/comment')
     }).catch(err => {
         return res.send(400, {message: err});
     });
-}
-
-module.exports = {
-    list,
-    create,
-}
+};

@@ -1,24 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-const auth = require('../middleware/auth');
-const logger = require('../../lib/logger');
+const auth = require('../../middlewares/auth');
 
-/* GET login. */
-router.get('/login', (req, res) => {
-    let flash = req.flash();
-    if (flash.error) {
-        flash = {
-            type: 'danger',
-            message: flash.error[0],
-        };
-    } else {
-        flash = null;
-    }
+const userController = require('./user.controller');
 
-    res.render('pages/login', {title: '로그인 페이지', flash: flash});
-    // res.render('pages/login', {title: '로그인 페이지', message: req.flash('loginMessage')});
-});
+
+router.get('/login', userController.getLogin);
 
 /* 주의 사항: login 진행 시 passport 에서 successRedirect 에 원래 주고 싶었던 라우터는 '/' 였다.
  * '/' 라우터에는 미들웨어로 req.isAuthenticated() 가 true 이면(로그인이 되었으면) 페이지를 나타내고
@@ -36,15 +24,8 @@ router.post('/login', passport.authenticate('local-login', {
     failureFlash: true
 }, null));
 
-router.get('/login-success', (req, res) => {
-    res.redirect('/');
-});
-
-/* GET sign-in*/
-router.get('/signup', (req, res) => {
-    // res.render('pages/signin', {title: '회원 가입 페이지', message: req.flash('signupMessage')});
-    res.render('pages/signup', {title: '회원 가입 페이지'});
-});
+router.get('/login-success', userController.getLoginSuccess);
+router.get('/signup', userController.getSignUp);
 
 router.post('/signup', passport.authenticate('local-signup', {
     successRedirect: '/user/login',
@@ -52,25 +33,7 @@ router.post('/signup', passport.authenticate('local-signup', {
     failureFlash: true
 }, null));
 
-router.get('/profile', auth.hasAuthenticated, (req, res) => {
-    res.render('pages/profile', {
-        title: '사용자 프로필',
-        userId: req.user.id ? req.user.id : '-',
-        userName: req.user.name ? req.user.name : '-',
-        userPhone: req.user.phone ? req.user.phone : '-',
-        userEmail: req.user.email ? req.user.email : '-',
-    });
-});
-
-router.get('/logout', auth.hasAuthenticated, (req, res) => {
-    req.logout();
-    req.session.destroy(err => {
-        if (err) {
-            logger.error(err);
-            return;
-        }
-        res.redirect('/user/login');
-    });
-});
+router.get('/profile', auth.hasAuthenticated, userController.getProfile);
+router.get('/logout', auth.hasAuthenticated, userController.getLogOut);
 
 module.exports = router;
