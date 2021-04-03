@@ -30,7 +30,7 @@ app.engine('hbs', hbs({
 );
 app.set('view engine', 'hbs');
 
-let env = app.get('env') || 'development';
+const env = process.env.NODE_ENV || 'development';
 dbConfig.initDbPool(env);
 app.use(session({
     secret: credentials.cookieSecret,

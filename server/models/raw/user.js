@@ -13,10 +13,9 @@ class User {
     validPassword(password) {
         return bcrypt.compareSync(password, this.password);
     }
-}
 
-const findById = async id => {
-    let sql = `
+    static async findById(id) {
+        let sql = `
         SELECT UR.USER_ID  'id'
              , PW.PASSWORD 'password'
              , UR.NAME     'name'
@@ -30,24 +29,40 @@ const findById = async id => {
           AND PW.DEL_FLAG = 'N'
     `;
 
-    let rows = await dbConfig.select(sql, [id]);
-    if (!rows[0]) {
-        return null;
-    }
+        let rows = await dbConfig.select(sql, [id]);
+        if (!rows[0]) {
+            return null;
+        }
 
-    return new User(
-        rows[0].id,
-        rows[0].password,
-        rows[0].name,
-        rows[0].phone,
-        rows[0].email
-    );
-};
+        return new User(
+            rows[0].id,
+            rows[0].password,
+            rows[0].name,
+            rows[0].phone,
+            rows[0].email
+        );
+    };
 
-const save = async user => {
-    await saveUser(user);
-    await savePassword(user);
-};
+    static async save(user) {
+        await saveUser(user);
+        await savePassword(user);
+    };
+
+    static async findKeyById(id) {
+        let sql = `
+        SELECT USER_KEY 'userKey'
+        FROM DEV_USER
+        WHERE USER_ID = ?
+    `;
+
+        let rows = await dbConfig.select(sql, [id]);
+        if (!rows[0]) {
+            return null;
+        }
+
+        return rows[0].userKey;
+    };
+}
 
 const saveUser = async user => {
     let insertUserSql = `
@@ -67,24 +82,4 @@ const savePassword = async user => {
     await dbConfig.insert(insertPasswordSql, [userKey, user.password, userKey]);
 };
 
-const findKeyById = async id => {
-    let sql = `
-        SELECT USER_KEY 'userKey'
-        FROM DEV_USER
-        WHERE USER_ID = ?
-    `;
-
-    let rows = await dbConfig.select(sql, [id]);
-    if (!rows[0]) {
-        return null;
-    }
-
-    return rows[0].userKey;
-};
-
-module.exports = {
-    User,
-    findById,
-    save,
-    findKeyById,
-};
+module.exports = User;

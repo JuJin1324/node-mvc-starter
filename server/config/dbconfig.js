@@ -20,6 +20,8 @@ const getDbOptions = (env) => {
                 sessionTable: credentials.mariadb.development.sessionTable,
                 timezone: 'Asia/Seoul',
                 expiration: 600000,  /* ms */
+                // model: 'raw',
+                model: 'sequelize',
             };
             break;
         case ENV.PRODUCTION:
@@ -32,6 +34,8 @@ const getDbOptions = (env) => {
                 sessionTable: credentials.mariadb.production.sessionTable,
                 timezone: 'Asia/Seoul',
                 expiration: 600000,  /* ms */
+                // model: 'raw',
+                model: 'sequelize',
             };
             break;
         default:
