@@ -5,21 +5,21 @@ const Password = require('./password');
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = require('../../config/dbconfig');
 
-const db = {};
+const models = {};
 let dbOptions = dbConfig.getDbOptions(env);
 const sequelize = new Sequelize(dbOptions.database, dbOptions.user, dbOptions.password, {
     host: dbOptions.host,
     dialect: 'mariadb'
 });
-db.sequelize = sequelize;
+models.sequelize = sequelize;
 
-db.User = User;
+models.User = User;
 User.init(sequelize, null);
 
-db.Password = Password;
+models.Password = Password;
 Password.init(sequelize, null);
 
-User.associate(db);
-Password.associate(db);
+User.associate(models);
+Password.associate(models);
 
-module.exports = db;
+module.exports = models;

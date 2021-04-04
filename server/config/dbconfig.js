@@ -39,7 +39,7 @@ const getDbOptions = (env) => {
             };
             break;
         default:
-            throw new Error(`Unknown execution enviorment: ${app.get('env')}`);
+            throw new Error(`Unknown execution environment: ${env}`);
     }
 
     return dbOptions;
