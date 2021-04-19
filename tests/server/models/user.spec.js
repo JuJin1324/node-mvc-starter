@@ -10,7 +10,7 @@ switch (dbOptions.model) {
         models = require('../../../server/models/raw');
         initDbPool = () => {
             dbConfig.initDbPool(env);
-        }
+        };
         break;
     case 'sequelize':
         models = require('../../../server/models/sequelize');
@@ -18,7 +18,7 @@ switch (dbOptions.model) {
 }
 
 describe('findById', () => {
-    before(() => {
+    beforeEach(() => {
         if (initDbPool) initDbPool();
     });
 
@@ -42,7 +42,7 @@ describe('findById', () => {
 });
 
 describe('findKeyById', () => {
-    before(() => {
+    beforeEach(() => {
         if (initDbPool) initDbPool();
     });
 
@@ -64,7 +64,7 @@ describe('findKeyById', () => {
 describe('save', () => {
     let user;
 
-    before(() => {
+    beforeEach(() => {
         if (initDbPool) initDbPool();
         switch (dbOptions.model) {
             case 'raw':
@@ -97,7 +97,7 @@ describe('save', () => {
                 assert.equal(user.phone, '010-7777-7777');
                 assert.equal(user.email, 'test100@gmail.com');
                 done();
-            })
+            });
         }).catch(err => {
             console.log(err);
         });
