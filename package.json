@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app_cluster.js",
-    "test": "node_modules/mocha/bin/mocha $(find . -name '*.spec.js') --recursive -w"
+    "start": "node app.js",
+    "test": "node_modules/mocha/bin/mocha $(find . -name '*.spec.js') --recursive"
   },
   "license": "MIT",
   "author": {
